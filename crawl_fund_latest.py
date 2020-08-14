@@ -1,9 +1,11 @@
 from util.thread_util import runThreads
 from util.mysql_util import existsInFundNoHistoryTable, removeFromFundNoHistoryTable, createFundHistoryTable
-
+import util.global_variables_util as gvutil
 from crawl_fund_history import crawlFundHistoryByPage
 
-spider_counts = 0
+crawl_counts = 0
+# updated_number = 0
+# no_updated_number = 0
 
 
 class FundLatestSpider:
@@ -20,9 +22,9 @@ class FundLatestSpider:
             if result != 0:
                 candidate_history_data_tuple, is_net_asset_value = result
                 self.__updateFundHistory(self.__fund_codes[i], candidate_history_data_tuple, is_net_asset_value)
-            global spider_counts
-            spider_counts += 1
-            print("%s / %s" % (spider_counts, fund_codes_size))
+            global crawl_counts
+            crawl_counts += 1
+            print("%s / %s" % (crawl_counts, fund_codes_size))
         self.__conn.close()
 
     def __updateFundHistory(self, fund_code, candidate_history_data_tuple, is_net_asset_value):
@@ -40,10 +42,21 @@ class FundLatestSpider:
             eligible_history_data_tuple = tuple(eligible_history_data_list)
         if len(eligible_history_data_tuple) == 0:
             print(fund_code, "no need to be updated")
+            # global no_updated_number
+            # no_updated_number = no_updated_number + 1
+            # print(no_updated_number)
+            no_updated_number = gvutil.getNoUpdatedNumber()
+            gvutil.setNoUpdatedNumber(no_updated_number + 1)
+            print(gvutil.getNoUpdatedNumber())
         else:
-            print("here")
             self.__saveFundLatest(fund_code, eligible_history_data_tuple, is_net_asset_value)
             print(fund_code, "has updated", len(eligible_history_data_tuple), "record(s)")
+            # global updated_number
+            # updated_number = updated_number + 1
+            # print(updated_number)
+            updated_number = gvutil.getUpdatedNumber()
+            gvutil.setUpdatedNumber(updated_number + 1)
+            print(gvutil.getUpdatedNumber())
 
     def __saveFundLatest(self, fund_code, eligible_history_data_tuple, is_net_asset_value):
         cursor = self.__conn.cursor()

@@ -3,7 +3,6 @@ import requests
 
 import datetime
 from util.mysql_util import tableExists, dropTable, createFundHistoryTable
-from crawl_fund_list import getFundCodes
 import json
 
 from util.thread_util import runThreads
