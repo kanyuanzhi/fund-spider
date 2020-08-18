@@ -1,6 +1,7 @@
 import requests
 from time import sleep
-from util.mysql_util import MysqlDB, tableExists, truncateTable, createFundListTable
+from util.mysql_util import MysqlDB, tableExists, truncateTable, selectFieldsFromOneTable
+from init_database import createFundListTable
 
 
 def crawlFundList():
@@ -53,6 +54,7 @@ class FundListSpider:
             createFundListTable(self.__conn)
         self.__saveFundList(fund_list_tuple)
         self.__conn.close()
+        print("共爬取%s条基金条目。" % len(fund_list_tuple))
 
     def __saveFundList(self, fund_list_tuple):
         cursor = self.__conn.cursor()

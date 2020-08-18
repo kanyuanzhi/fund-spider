@@ -6,8 +6,9 @@ import datetime
 import re
 
 from util.thread_util import runThreads
-
-spider_counts = 0
+import util.global_variables_util as gvutil
+from util.mysql_util import tableExists, truncateTable
+from init_database import createFundInfoTable
 
 
 class FundInfoSpider:
@@ -21,10 +22,13 @@ class FundInfoSpider:
             end_index = fund_codes_size
         for i in range(start_index, end_index):
             fund_info_tuple = crawlFundInfo(self.__fund_codes[i])
+            if tableExists(self.__conn, "fund_info_table"):
+                truncateTable(self.__conn, "fund_info_table")
+            else:
+                createFundInfoTable(self.__conn)
             self.__saveFundInfo(fund_info_tuple)
-            global spider_counts
-            spider_counts += 1
-            print("%s / %s" % (spider_counts, fund_codes_size))
+            gvutil.setCrawlCounts(gvutil.getCrawlCounts() + 1)
+            print("%s / %s" % (gvutil.getCrawlCounts(), fund_codes_size))
         self.__conn.close()
 
     def __saveFundInfo(self, fund_info_tuple):

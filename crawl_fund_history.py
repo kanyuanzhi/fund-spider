@@ -3,11 +3,10 @@ import requests
 
 import datetime
 from util.mysql_util import tableExists, dropTable, createFundHistoryTable
+import util.global_variables_util as gvutil
 import json
 
 from util.thread_util import runThreads
-
-spider_counts = 0
 
 
 class FundHistorySpider:
@@ -38,18 +37,16 @@ class FundHistorySpider:
                     all_history_data_tuple = (*one_page_history_data_tuple, *all_history_data_tuple)
                     page_index += 1
                     result = crawlFundHistoryByPage(self.__fund_codes[i], page_index, page_size)
+                if tableExists(self.__conn, "history_" + self.__fund_codes[i] + "_table"):
+                    dropTable(self.__conn, "history_" + self.__fund_codes[i] + "_table")
+                createFundHistoryTable(self.__conn, self.__fund_codes[i], is_net_asset_value)
                 self.__saveFundHistory(self.__fund_codes[i], all_history_data_tuple, is_net_asset_value)
-            global spider_counts
-            spider_counts += 1
-            print("%s / %s" % (spider_counts, fund_codes_size))
-            # print(self.__fund_codes[i], i, "/", len(self.__fund_codes), "finished")
+            gvutil.setCrawlCounts(gvutil.getCrawlCounts() + 1)
+            print("%s / %s" % (gvutil.getCrawlCounts(), fund_codes_size))
         self.__conn.close()
 
     def __saveFundHistory(self, fund_code, all_history_data_tuple, is_net_asset_value):
         cursor = self.__conn.cursor()
-        if tableExists(self.__conn, "history_" + fund_code + "_table"):
-            dropTable(self.__conn, "history_" + fund_code + "_table")
-        createFundHistoryTable(self.__conn, fund_code, is_net_asset_value)
         if is_net_asset_value:
             sql = "insert into " \
                   "history_" + fund_code + "_table" \

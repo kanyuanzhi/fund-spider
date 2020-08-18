@@ -1,4 +1,4 @@
-from util.mysql_util import MysqlDB, dropAllHistoryTables, selectAllHistoryTables, truncateTable
+from util.mysql_util import MysqlDB, dropAllHistoryTables, selectAllHistoryTableNames, truncateTable
 from util.thread_util import countIndexGroups
 import threading
 from time import time
@@ -23,7 +23,7 @@ def runThread(thread_numbers):
     db = MysqlDB()
     conn = db.getConnFromPool()
     truncateTable(conn, "fund_no_history_table")
-    all_history_tables = selectAllHistoryTables(conn)
+    all_history_tables = selectAllHistoryTableNames(conn)
     conn.close()
 
     all_history_tables_size = len(all_history_tables)

@@ -2,6 +2,7 @@ class GlobalVariables:
     updated_number = 0
     no_updated_number = 0
     crawl_counts = 0
+    drop_counts = 0
 
 
 def getUpdatedNumber():
@@ -26,3 +27,11 @@ def getCrawlCounts():
 
 def setCrawlCounts(count):
     GlobalVariables.crawl_counts = count
+
+
+def getDropCounts():
+    return GlobalVariables.drop_counts
+
+
+def setDropCounts(count):
+    GlobalVariables.drop_counts = count
